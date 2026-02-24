@@ -34,7 +34,8 @@ jobs:
           sudo apt-get install -y \
             build-essential libffi-dev libssl-dev libsqlite3-dev zlib1g-dev \
             autoconf automake libtool pkg-config cmake zip unzip git gettext \
-            libltdl-dev libgles2-mesa-dev libsdl2-dev
+            libltdl-dev libgles2-mesa-dev libsdl2-dev libsdl2-image-dev \
+            libsdl2-mixer-dev libsdl2-ttf-dev
           pip install --upgrade pip
           pip install "Cython<3.0" buildozer python-for-android
 
