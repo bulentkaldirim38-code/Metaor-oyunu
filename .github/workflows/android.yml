@@ -28,7 +28,7 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      -       - name: Install Dependencies
+      - name: Install Dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y \
@@ -44,12 +44,11 @@ jobs:
           export APP_ANDROID_ACCEPT_SDK_LICENSE=1
           export P4A_CYTHON_DIRECTIVES="language_level=3"
           buildozer -v android debug
-
         env:
           TERM: xterm
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: KuryeTakip_Final_APK
+          name: MeteorOyunu_Final_APK
           path: bin/*.apk
