@@ -50,5 +50,5 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: MeteorOyunu_Final_APK
+          name: MeteorHunter_APK
           path: bin/*.apk
