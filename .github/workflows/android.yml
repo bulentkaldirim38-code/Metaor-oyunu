@@ -1,33 +1,55 @@
-name: Kurye Takip APK Derleme
+name: Android Build
 
-# Tetikleyiciler: Kod her gönderildiğinde (push) çalışır
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    branches: [ "main" ]
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
-      # 1. Kodları GitHub sunucusuna çek
-      - name: Depoyu Kontrol Et
-        uses: actions/checkout@v2
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-      # 2. Buildozer ile Derleme İşlemi
-      - name: Buildozer ile APK Oluştur
-        uses: ArtemSBulgakov/buildozer-action@v1
-        with:
-          buildozer_version: master
-          # Bu komut senin buildozer.spec dosyanı otomatik okur
-          command: buildozer android debug
-          repository_display_name: Kurye_Takip_Mersin
+      - name: Free Disk Space
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
 
-      # 3. Oluşan APK'yı "Artifacts" olarak yükle
-      - name: APK Dosyasını Yükle
-        uses: actions/upload-artifact@v2
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v5
         with:
-          name: Kurye_Uygulamasi_V1
+          python-version: '3.10'
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential libffi-dev libssl-dev libsqlite3-dev zlib1g-dev \
+            autoconf automake libtool pkg-config cmake zip unzip git gettext \
+            libltdl-dev libgles2-mesa-dev libsdl2-dev
+          pip install --upgrade pip
+          pip install "Cython<3.0" buildozer python-for-android
+
+      - name: Build with Buildozer
+        run: |
+          export APP_ANDROID_ACCEPT_SDK_LICENSE=1
+          export BUILDOZER_ALLOW_ORG_NAME_START_WITH_NUMBER=1
+          # Cython uyarısını ve hatasını çözen kritik değişken:
+          export P4A_CYTHON_DIRECTIVES="language_level=3"
+          buildozer -v android debug
+        env:
+          TERM: xterm
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: KuryeTakip_Final_APK
           path: bin/*.apk
