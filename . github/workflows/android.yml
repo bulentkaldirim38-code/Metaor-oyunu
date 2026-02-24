@@ -1,0 +1,33 @@
+name: Meteor-oyunu
+
+# Tetikleyiciler: Kod her gönderildiğinde (push) çalışır
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Kodları GitHub sunucusuna çek
+      - name: Depoyu Kontrol Et
+        uses: actions/checkout@v2
+
+      # 2. Buildozer ile Derleme İşlemi
+      - name: Buildozer ile APK Oluştur
+        uses: ArtemSBulgakov/buildozer-action@v1
+        with:
+          buildozer_version: master
+          # Bu komut senin buildozer.spec dosyanı otomatik okur
+          command: buildozer android debug
+          repository_display_name: Kurye_Takip_Mersin
+
+      # 3. Oluşan APK'yı "Artifacts" olarak yükle
+      - name: APK Dosyasını Yükle
+        uses: actions/upload-artifact@v2
+        with:
+          name: Kurye_Uygulamasi_V1
+          path: bin/*.apk
