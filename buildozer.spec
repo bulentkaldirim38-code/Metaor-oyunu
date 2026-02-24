@@ -6,9 +6,8 @@ source.dir = .
 source.include_exts = py,png,jpg,ttf
 version = 1.0
 
-# KRİTİK: Pygame projesi için bunları kullan!
 requirements = python3,pygame,sdl2,sdl2_image,sdl2_mixer,sdl2_ttf
-
+android.permissions = INTERNET, WRITE_EXTERNAL_STORAGE.
 orientation = portrait
 fullscreen = 1
 
