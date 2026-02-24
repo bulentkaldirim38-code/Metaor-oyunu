@@ -28,7 +28,7 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Install Dependencies
+      -       - name: Install Dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y \
@@ -42,10 +42,9 @@ jobs:
       - name: Build with Buildozer
         run: |
           export APP_ANDROID_ACCEPT_SDK_LICENSE=1
-          export BUILDOZER_ALLOW_ORG_NAME_START_WITH_NUMBER=1
-          # Cython uyarısını ve hatasını çözen kritik değişken:
           export P4A_CYTHON_DIRECTIVES="language_level=3"
           buildozer -v android debug
+
         env:
           TERM: xterm
 
