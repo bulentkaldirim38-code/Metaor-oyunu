@@ -31,19 +31,30 @@ def oyunu_sifirla(ekran_genislik, ekran_yukseklik):
     }
 
 def main():
-    pygame.init()
+    init_result = pygame.init()
+    print(f"Pygame initialized: {init_result}", file=sys.stderr)
+    pygame.display.init()
+    pygame.font.init()
+
     ekran_genislik = 720
     ekran_yukseklik = 1280 # Mobil için standart yükseklik
     ekran = pygame.display.set_mode((ekran_genislik, ekran_yukseklik))
     pygame.display.set_caption("Meteor Hunter")
 
-    # Fontları yükle
-    try:
-        font_puan = pygame.font.SysFont("Arial", 50)
-        font_mesaj = pygame.font.SysFont("Arial", 80, bold=True)
-    except:
-        font_puan = pygame.font.SysFont(None, 50)
-        font_mesaj = pygame.font.SysFont(None, 80, bold=True)
+    # Fontları yükle - Daha güvenli bir yöntemle
+    def font_getir(size, bold=False):
+        fonts = ["Arial", "sans-serif", "Roboto", None]
+        for f in fonts:
+            try:
+                font = pygame.font.SysFont(f, size, bold=bold)
+                if font:
+                    return font
+            except:
+                continue
+        return pygame.font.Font(None, size)
+
+    font_puan = font_getir(50)
+    font_mesaj = font_getir(80, bold=True)
 
     # Görselleri Yükle
     GEMI_RESMI = gorsel_hazirla("gemi.png", 140, 140)
@@ -82,6 +93,7 @@ def main():
         if oyun["durum"] == "OYUN":
             # GEMİ HAREKETİ
             oyun["gemi_x"] = fare_x - 70
+
             # Ekran sınırları
             oyun["gemi_x"] = max(0, min(oyun["gemi_x"], ekran_genislik - 140))
             gemi_rect = pygame.Rect(oyun["gemi_x"], oyun["gemi_y"], 140, 140)
