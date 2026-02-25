@@ -7,7 +7,7 @@ source.include_exts = py,png,jpg,ttf,wav
 version = 1.0
 
 # Gerekli kütüphaneler (Pygame için en güvenli liste)
-requirements = python3, pygame
+requirements = python3, pygame, sdl2_image, sdl2_ttf, sdl2_mixer, hostpython3
 
 # İzinler
 android.permissions = INTERNET, VIBRATE

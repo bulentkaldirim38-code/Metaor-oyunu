@@ -32,6 +32,7 @@ def oyunu_sifirla(ekran_genislik, ekran_yukseklik):
 
 def main():
     pygame.init()
+    pygame.display.init()
     pygame.font.init()
 
     # Mobil uyumlu ekran ayarları
