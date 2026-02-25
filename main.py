@@ -2,7 +2,7 @@ import pygame
 import random
 import sys
 
-# --- 1. AYARLAR VE BAŞLATMA ---
+# --- AYARLAR VE BAŞLATMA ---
 SIYAH = (0, 0, 0)
 BEYAZ = (255, 255, 255)
 KIRMIZI = (255, 0, 0)
@@ -21,7 +21,7 @@ def gorsel_hazirla(dosya_adi, g, y):
 def oyunu_sifirla(ekran_genislik, ekran_yukseklik):
     return {
         "gemi_x": ekran_genislik // 2 - 70,
-        "gemi_y": ekran_yukseklik - 160, # Gemiyi tam zemine yakın koyduk
+        "gemi_y": ekran_yukseklik - 200, 
         "lazerler": [],
         "meteorlar": [],
         "puan": 0,
@@ -31,40 +31,32 @@ def oyunu_sifirla(ekran_genislik, ekran_yukseklik):
     }
 
 def main():
-    init_result = pygame.init()
-    print(f"Pygame initialized: {init_result}", file=sys.stderr)
-    pygame.display.init()
+    pygame.init()
     pygame.font.init()
 
+    # Mobil uyumlu ekran ayarları
     ekran_genislik = 720
-    ekran_yukseklik = 1280 # Mobil için standart yükseklik
+    ekran_yukseklik = 1280
     ekran = pygame.display.set_mode((ekran_genislik, ekran_yukseklik))
     pygame.display.set_caption("Meteor Hunter")
 
-    # Fontları yükle - Daha güvenli bir yöntemle
     def font_getir(size, bold=False):
-        fonts = ["Arial", "sans-serif", "Roboto", None]
-        for f in fonts:
-            try:
-                font = pygame.font.SysFont(f, size, bold=bold)
-                if font:
-                    return font
-            except:
-                continue
-        return pygame.font.Font(None, size)
+        try:
+            return pygame.font.SysFont("Arial", size, bold=bold)
+        except:
+            return pygame.font.Font(None, size)
 
     font_puan = font_getir(50)
-    font_mesaj = font_getir(80, bold=True)
+    font_mesaj = font_getir(100, bold=True)
+    font_buton = font_getir(60)
 
-    # Görselleri Yükle
+    # Görseller
     GEMI_RESMI = gorsel_hazirla("gemi.png", 140, 140)
-
     LAZER_TIPLERI = [
         gorsel_hazirla("lazer1.png", 40, 80),
         gorsel_hazirla("lazer2.png", 40, 80),
         gorsel_hazirla("lazer3.png", 40, 80)
     ]
-
     METEOR_GORSELLERI = [
         {"resim": gorsel_hazirla("meteor1.png", 120, 120), "puan": 10},
         {"resim": gorsel_hazirla("meteor2.png", 100, 100), "puan": 20},
@@ -77,7 +69,7 @@ def main():
 
     while True:
         ekran.fill(SIYAH)
-        fare_x, fare_y = pygame.mouse.get_pos()
+        fare_pos = pygame.mouse.get_pos()
         fare_tuslari = pygame.mouse.get_pressed()
         tiklandi = False
 
@@ -85,59 +77,54 @@ def main():
             if olay.type == pygame.QUIT:
                 pygame.quit(); sys.exit()
             if olay.type == pygame.KEYDOWN:
-                if olay.key == pygame.K_ESCAPE: # Android geri tuşu
+                if olay.key == pygame.K_ESCAPE:
                     pygame.quit(); sys.exit()
             if olay.type == pygame.MOUSEBUTTONDOWN:
                 tiklandi = True
 
         if oyun["durum"] == "OYUN":
-            # GEMİ HAREKETİ
-            oyun["gemi_x"] = fare_x - 70
-
-            # Ekran sınırları
+            # Gemi Hareketi (Parmak takibi)
+            oyun["gemi_x"] = fare_pos[0] - 70
             oyun["gemi_x"] = max(0, min(oyun["gemi_x"], ekran_genislik - 140))
             gemi_rect = pygame.Rect(oyun["gemi_x"], oyun["gemi_y"], 140, 140)
 
-            # ATEŞLEME SİSTEMİ
-            if (tiklandi or fare_tuslari[0]) and oyun["lazer_bekleme"] == 0:
+            # Ateşleme
+            if (fare_tuslari[0]) and oyun["lazer_bekleme"] == 0:
                 lazer_index = oyun["lazer_sirasi"] % 3
                 secilen_lazer = LAZER_TIPLERI[lazer_index]
-
-                # Lazeri geminin tam ortasından çıkar
                 l_x = oyun["gemi_x"] + 70 - (secilen_lazer.get_width() // 2)
                 l_y = oyun["gemi_y"] - 20
-
                 oyun["lazerler"].append({
                     "rect": pygame.Rect(l_x, l_y, secilen_lazer.get_width(), secilen_lazer.get_height()),
                     "resim": secilen_lazer
                 })
                 oyun["lazer_sirasi"] += 1
-                oyun["lazer_bekleme"] = 12 # Ateş hızı
+                oyun["lazer_bekleme"] = 10 
 
             if oyun["lazer_bekleme"] > 0:
                 oyun["lazer_bekleme"] -= 1
 
-            # METEOR OLUŞTURMA
-            if random.randint(1, 25) == 1:
+            # Meteor Oluşturma
+            if random.randint(1, 20) == 1:
                 tip = random.choice(METEOR_GORSELLERI)
                 mx = random.randint(0, ekran_genislik - 100)
                 oyun["meteorlar"].append({
                     "rect": pygame.Rect(mx, -150, tip["resim"].get_width(), tip["resim"].get_height()),
                     "resim": tip["resim"],
                     "puan": tip["puan"],
-                    "hiz_y": random.randint(6, 12),
-                    "hiz_x": random.randint(-3, 3),
+                    "hiz_y": random.randint(7, 14),
+                    "hiz_x": random.randint(-2, 2),
                     "aci": 0,
-                    "donus": random.randint(2, 7)
+                    "donus": random.randint(3, 8)
                 })
 
-            # LAZERLERİ GÜNCELLE
+            # Lazer Güncelleme
             for l in oyun["lazerler"][:]:
                 l["rect"].y -= 25
                 ekran.blit(l["resim"], l["rect"])
                 if l["rect"].bottom < 0: oyun["lazerler"].remove(l)
 
-            # METEORLAR VE ÇARPIŞMA
+            # Meteor Güncelleme ve Çarpışma
             for m in oyun["meteorlar"][:]:
                 m["rect"].y += m["hiz_y"]
                 m["rect"].x += m["hiz_x"]
@@ -156,7 +143,6 @@ def main():
                         break
 
                 if m in oyun["meteorlar"]:
-                    # Gemiye çarptı mı?
                     if m["rect"].colliderect(gemi_rect):
                         oyun["durum"] = "BITTI"
                     elif m["rect"].top > ekran_yukseklik:
@@ -164,16 +150,22 @@ def main():
 
             ekran.blit(GEMI_RESMI, gemi_rect)
             puan_txt = font_puan.render(f"Puan: {oyun['puan']}", True, BEYAZ)
-            ekran.blit(puan_txt, (20, 20))
+            ekran.blit(puan_txt, (30, 30))
 
         elif oyun["durum"] == "BITTI":
-            skor_txt = font_puan.render(f"TOPLAM SKOR: {oyun['puan']}", True, BEYAZ)
+            # Metinleri Hazırla
             go_txt = font_mesaj.render("GAME OVER", True, KIRMIZI)
-            restart_txt = font_puan.render("YENIDEN BASLAT", True, YESIL)
+            skor_txt = font_puan.render(f"TOPLAM SKOR: {oyun['puan']}", True, BEYAZ)
+            restart_txt = font_buton.render("TEKRAR OYNA", True, YESIL)
 
-            ekran.blit(skor_txt, (ekran_genislik//2 - 150, ekran_yukseklik//2 - 100))
-            ekran.blit(go_txt, (ekran_genislik//2 - 200, ekran_yukseklik//2))
-            ekran.blit(restart_txt, (ekran_genislik//2 - 180, ekran_yukseklik//2 + 100))
+            # Ekrana Ortala
+            go_rect = go_txt.get_rect(center=(ekran_genislik//2, ekran_yukseklik//2 - 100))
+            skor_rect = skor_txt.get_rect(center=(ekran_genislik//2, ekran_yukseklik//2))
+            res_rect = restart_txt.get_rect(center=(ekran_genislik//2, ekran_yukseklik//2 + 150))
+
+            ekran.blit(go_txt, go_rect)
+            ekran.blit(skor_txt, skor_rect)
+            ekran.blit(restart_txt, res_rect)
 
             if tiklandi:
                 oyun = oyunu_sifirla(ekran_genislik, ekran_yukseklik)
