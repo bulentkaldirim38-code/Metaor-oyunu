@@ -6,17 +6,16 @@ source.dir = .
 source.include_exts = py,png,jpg,ttf,wav
 version = 1.0
 
-# Pygame reçetesi (recipe) sdl2 kütüphanelerini otomatik çeker. 
-# Manuel eklemek bazen çakışma yaratır ancak ttf ve image modülleri bazen eksik kalabiliyor.
-requirements = python3, pygame, sdl2_image, sdl2_ttf
+# Gerekli kütüphaneler (Pygame için en güvenli liste)
+requirements = python3, pygame
 
-# KRİTİK DÜZELTME: Sondaki nokta silindi, izinler temizlendi.
-android.permissions = INTERNET
+# İzinler
+android.permissions = INTERNET, VIBRATE
 
 orientation = portrait
 fullscreen = 1
 
-# Android API ve Build Ayarları
+# Android API Ayarları
 android.api = 33
 android.minapi = 21
 android.ndk = 25b
